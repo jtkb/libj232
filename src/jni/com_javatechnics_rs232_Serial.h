@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jstring JNICALL Java_com_javatechnics_rs232_Serial_getNativeLibraryVersion
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_javatechnics_rs232_Serial
+ * Method:    openSerialPort
+ * Signature: (Ljava/lang/String;I)I
+ */
+JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_openSerialPort
+  (JNIEnv *, jobject, jstring, jint);
+
 #ifdef __cplusplus
 }
 #endif
