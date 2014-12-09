@@ -7,8 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef com_javatechnics_rs232_Serial_MAX_SKIP_BUFFER_SIZE
-#define com_javatechnics_rs232_Serial_MAX_SKIP_BUFFER_SIZE 2048L
 /*
  * Class:     com_javatechnics_rs232_Serial
  * Method:    getNativeLibraryVersion
