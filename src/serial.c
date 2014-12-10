@@ -11,3 +11,12 @@ Java_com_javatechnics_rs232_Serial_openSerialPort (JNIEnv * env, jobject obj, js
 	jint return_value = -1;
 	return return_value;
 };
+
+/*
+ * This function calls the underlying native close() function.
+ * TODO: throw exception if error closing file.
+ */
+JNIEXPORT jint JNICALL 
+Java_com_javatechnics_rs232_Serial_closeSerialPort (JNIEnv *env, jobject obj, jint fd){
+    return close(fd);
+}

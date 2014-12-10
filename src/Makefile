@@ -2,6 +2,9 @@ JNI_INCLUDE = $(JDK_HOME)/include
 
 all: libj232
 
+install:
+	-cp libj232.so /usr/lib/
+	
 libj232: libj232.so
 
 libj232.so: version.c serial.c
@@ -17,4 +20,4 @@ clean:
 	-rm *.so
 	-rm *.o
 
-.PHONY: all clean jni_headers_clean jni_headers
+.PHONY: all clean jni_headers_clean jni_headers install

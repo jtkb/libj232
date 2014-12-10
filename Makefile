@@ -10,7 +10,7 @@ export JSERIAL_CLASSPATH
 TOP_LEVEL_PACKAGE=com.javatechnics.rs232
 export TOP_LEVEL_PACKAGE
 
-all clean libj232 jni_headers jni_headers_clean:
+all clean libj232 jni_headers jni_headers_clean install:
 	cd src && $(MAKE) $@
 
-.PHONY: all clean jni_headers_clean
+.PHONY: all clean jni_headers_clean install
