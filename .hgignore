@@ -3,3 +3,4 @@ syntax: glob
 *.so
 *.o
 src/java/**
+nbproject/**
