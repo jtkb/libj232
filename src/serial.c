@@ -23,9 +23,11 @@
 JNIEXPORT jint JNICALL
 Java_com_javatechnics_rs232_Serial_openSerialPort (JNIEnv * env, jobject obj, jstring path, jint flags){
 	jint return_value = -1;
+        int native_flags = get_real_flags(open_flags, universal_flag_array, \
+                                            flags, number_open_flags);
         const jbyte *c_path = (*env)->GetStringUTFChars(env, path, NULL);
         if (c_path != NULL){
-            return_value = open(c_path, flags);
+            return_value = open(c_path, native_flags);
             if (return_value == -1){
                 jint error = errno; //preserve the correct error number
                 // Throw exception
@@ -69,4 +71,25 @@ Java_com_javatechnics_rs232_Serial_closeSerialPort (JNIEnv *env, jobject obj, ji
         }
     }
     return return_value;
+}
+
+/**
+ *  This is a helper function that converts Java-defined flag values to their
+ * equivalent in native code and returns a native flag value.
+ * @param java_flags An array of the flag values as defined in the Java code.
+ * @param native_flags An array of the equivalent native flags.
+ * @param selected_flags An integer value of the required Java-defined flags.
+ * @param size The size of the java_flags array.
+ * @return The converted Java-to-Native flags.
+ */
+int get_real_flags(const int java_flags[], \
+                    const int native_flags[], \
+                    const int selected_flags, \
+                    const int size){
+    int return_flag = 0, count = 0;
+    for (; count < size; count++){
+        if (selected_flags & java_flags[count])
+            return_flag |= native_flags[count];
+    }
+    return return_flag;
 }
