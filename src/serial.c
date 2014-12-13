@@ -41,10 +41,32 @@ Java_com_javatechnics_rs232_Serial_openSerialPort (JNIEnv * env, jobject obj, js
 };
 
 /*
- * This function calls the underlying native close() function.
- * TODO: throw exception if error closing file.
+ * This function is a wrapper around the native close() function. The file 
+ * closed is that of the passed in file descriptor. If the function is successful
+ * it returns 0 to the calling function -1 otherwise. In the Java code it
+ * throws an exception if -1 is returned from the native close() call. If
+ * an IOException object cannot be created this function simply returns -1
+ * indicating that both a file close and class instantiation error occurred.
+ * Parameters:
+ *      JNIEnv  :     
+ *      jobject :
+ *      jint    :flags      File descriptor of the file to close.
+ *  
+ *      Return  :           If succesful the underlying file descriptor, 
+ *                          or throws an IOException in the JVM or -1 if open()
+ *                          failed AND IOException object could not be created.
  */
 JNIEXPORT jint JNICALL 
 Java_com_javatechnics_rs232_Serial_closeSerialPort (JNIEnv *env, jobject obj, jint fd){
-    return close(fd);
+    jint return_value = -1;
+    return_value = close(fd);
+    if (return_value == -1){
+        jint error = errno;
+        jclass newIOException = (*env)->FindClass(env, \
+                        "java/io/IOException");
+        if (newIOException != NULL){
+            (*env)->ThrowNew(env, newIOException, strerror(error));
+        }
+    }
+    return return_value;
 }

@@ -4,6 +4,8 @@ all: libj232
 
 install:
 	-cp libj232.so /usr/lib/
+	-chown 0:0 /usr/lib/libj232.so
+	-chmod a-x /usr/lib/libj232.so
 	
 libj232: libj232.so
 
