@@ -12,18 +12,128 @@
 #include <jni.h>
 #include "jni/com_javatechnics_rs232_Serial.h"
 
-const int universal_flag_array[] = {0x00001, 0x00002, 0x00004, 0x00008, \
+const int java_open_flags[] = {0x00001, 0x00002, 0x00004, 0x00008, \
                         0x00010, 0X00020, 0X00040, 0X00080, \
                         0X00100, 0X00200, 0X00400, 0X00800, \
                         0X01000, 0X02000, 0X04000, 0X08000, \
                         0X10000, 0X20000};
 
-const int open_flags[] = { O_APPEND, O_ASYNC, O_CLOEXEC, O_CREAT, \
-                            O_DIRECT, O_DIRECTORY, O_DSYNC, O_EXCL,
-                            O_LARGEFILE, O_NOATIME, O_NOCTTY, O_NOFOLLOW, \
-                            O_NONBLOCK, O_SYNC, O_TRUNC, O_RDONLY, \
-                            O_WRONLY, O_RDWR };
+const int open_flags[] = { O_APPEND,    O_ASYNC,    O_CLOEXEC,  O_CREAT, \
+                           O_DIRECT,    O_DIRECTORY,O_DSYNC,   O_EXCL,
+                           O_LARGEFILE, O_NOATIME,  O_NOCTTY,   O_NOFOLLOW, \
+                           O_NONBLOCK,  O_SYNC,     O_TRUNC,    O_RDONLY, \
+                           O_WRONLY,    O_RDWR };
 const int number_open_flags = sizeof(open_flags) / sizeof(open_flags[0]);
+
+const int java_control_flags[] = {   0010017,    0000000,    0000001,    0000002, \
+                                0000003,    0000004,    0000005,     0000006, \
+                                0000007,    0000010,    0000011,    0000012, \
+                                0000013,    0000014,    0000015,    0000016, \
+                                0000017,    0010001,    0010002,    0010003, \
+                                0010004,    0010005,    0010006,    0010007, \
+                                0010010,    0010011,    0010012,    0010013, \
+                                0010014,    0010015,    0010016,    0010017, \
+                                0000016,    0000017,    0000060,    0000000, \
+                                0000020,    0000040,    0000060,    0000100, \
+                                0000200,    0000400,    0001000,    0002000, \
+                                0004000,    020000000000};
+const int control_flags[] = \
+                        {CBAUD,     B0,         B50,        B75,        \
+                        B110,       B134,       B150,       B200,       \
+                        B300,       B600,       B1200,      B1800,      \
+                        B2400,      B4800,      B9600,      B19200,     \
+                        B38400,     B57600,     B115200,    B230400,    \
+                        B460800,    B500000,    B576000,    B921600,    \
+                        B1000000,   B1152000,  B1500000,   B2000000,    \
+                        B2500000,   B3000000,   B3500000,   B4000000,   \
+                        EXTA,       EXTB,       CSIZE,      CS5,        \
+                        CS6,        CS7,        CS8,        CSTOPB,     \
+                        CREAD,      PARENB,     PARODD,     HUPCL,      \
+                        CLOCAL,     CRTSCTS};
+
+
+
+const int number_control_flags = sizeof(control_flags) / sizeof(control_flags[0]);
+
+const int java_line_flags[] = {0000001,     0000002,   0000004,     0000010, \
+                                0000020,    0000040,    0000100,    0000200, \
+                                0000400,    0001000,    0002000,    0004000, \
+                                0010000,    0040000,    0100000};
+
+const int line_flags[] = \
+                        {ISIG,      ICANON,     XCASE,       ECHO, \
+                        ECHOE,      ECHOK,      ECHONL,     NOFLSH, \
+                        TOSTOP,     ECHOCTL,    ECHOPRT,    ECHOKE, \
+                        FLUSHO,     PENDIN,     IEXTEN};
+
+const int number_line_flags = sizeof(line_flags) / sizeof(line_flags[0]);
+
+const int java_input_flags[] = \
+                        {   0000001,    0000002,    0000004,    0000010, \
+                            0000020,    0000040,    0000100,    0000200, \
+                            0000400,    0001000,    0002000,    0004000, \
+                            0010000,    0020000,    0040000};
+
+const int input_flags[] = \
+                        { IGNBRK,   BRKINT,     IGNPAR,     PARMRK, \
+                        INPCK,      ISTRIP,     INLCR,      IGNCR, \
+                        ICRNL,      IUCLC,      IXON,       IXANY, \
+                        IXOFF,      IMAXBEL,    IUTF8};
+
+const int number_input_flags = sizeof(input_flags) / sizeof(input_flags[0]);
+
+const int java_output_flags[] = \
+                        {0000001,   0000002,    0000004,    0000010, \
+                        0000020,    0000040,    0000100,    0000200, \
+                        0000400,    0000000,    0000400,    0003000, \
+                        0000000,    0001000,    0002000,    0003000, \
+                        0014000,    0000000,    0004000,    0010000, \
+                        0014000,    0020000,    0000000,    0020000, \
+                        0100000,    0000000,    0100000,    0040000, \
+                        0000000,    0040000,    0014000};
+
+const int output_flags[] = \
+                        {OPOST,     OLCUC,      ONLCR,      OCRNL, \
+                        ONOCR,      ONLRET,	OFILL,      OFDEL, \
+                        NLDLY,      NL0,        NL1,        CRDLY,
+                        CR0,        CR1,        CR2,        CR3, \
+                        TABDLY,     TAB0,       TAB1,       TAB2, \
+                        TAB3,       BSDLY,      BS0,        BS1, \
+                        FFDLY,      FF0,        FF1,        VTDLY, \
+                        VT0,        VT1,        XTABS};
+
+const int number_output_flags = sizeof(output_flags) / sizeof(output_flags[0]);
+
+const int java_control_character_flags[] = {
+                            0,      1,      2,      3,      4,
+                            5,      6,      7,      8,
+                            9,      10,     11,     12,
+                            13,     14,     15,     16};
+
+const int control_character_flags[] = \
+                        {   VINTR,      VQUIT,  VERASE, VKILL,
+                            VEOF,       VTIME,  VMIN,   VSWTC,
+                            VSTART,     VSTOP,   VSUSP,   VEOL,
+                            VREPRINT,   VDISCARD,  VWERASE,    VLNEXT,
+                            VEOL2};
+
+const int number_control_character_flags = sizeof(control_character_flags) / \
+                            sizeof(control_character_flags[0]);
+
+const int java_terminal_settings_flags[] = \
+                        {   1,      2,      4};
+
+const int terminal_settings_flags[] = \
+                        {   TCSANOW,    TCSADRAIN,      TCSAFLUSH};
+
+const int number_terminal_settings_flags = sizeof(terminal_settings_flags) / \
+                            sizeof(terminal_settings_flags[0]);
+
+const char* java_termios_fields[] = {"c_iflag", "c_oflag", "c_cflag", "c_lflag",
+                                    "c_cc"};
+const char* java_termios_field_descriptors[] = { "I", "I", "I", "I", "[B"};
+
+#define JAVA_TERMIOS_FIELD_COUNT 5
 
 int get_real_flags(const int java_flags[], const int native_flags[], \
                             const int selected_flags, const int size);
