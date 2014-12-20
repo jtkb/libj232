@@ -6,6 +6,9 @@ install:
 	-chown 0:0 /usr/lib/libj232.so
 	-chmod a-x /usr/lib/libj232.so
 
+uninstall:
+	-rm -f /usr/lib/libj232.so
+
 debug: clean libj232.so
 	
 libj232: libj232.so
@@ -23,4 +26,4 @@ clean:
 	-rm *.so
 	-rm *.o
 
-.PHONY: all clean jni_headers_clean jni_headers install
+.PHONY: all clean jni_headers_clean jni_headers install uninstall

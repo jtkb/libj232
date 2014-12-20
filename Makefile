@@ -10,11 +10,10 @@ export JSERIAL_CLASSPATH
 TOP_LEVEL_PACKAGE=com.javatechnics.rs232
 export TOP_LEVEL_PACKAGE
 
-all clean libj232 jni_headers jni_headers_clean install:
+all clean libj232 jni_headers jni_headers_clean install uninstall:
 	cd src && $(MAKE) $@
 
 debug: 
-	#CPPFLAGS=-DDEBUG=1
 	DEBUG_CPPFLAGS=-DDEBUG=1; export DEBUG_CPPFLAGS; cd src && $(MAKE) $@
 	
-.PHONY: all clean jni_headers_clean install
+.PHONY: all clean jni_headers_clean install uninstall
