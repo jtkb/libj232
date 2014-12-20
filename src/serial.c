@@ -112,7 +112,7 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
                                             java_termios_fields[i],
                                             java_termios_field_descriptors[i]);
         if (field_ids[i] == NULL){
-            //TODO: throw exception.
+            //Exception is already thrown by the JVM if the call fails
             return return_value;
         }
     }
@@ -129,10 +129,14 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
                                         control_flags, \
                                         (*env)->GetIntField(env, termios, field_ids[2]), \
                                         number_control_flags);
-    l_termios.c_lflag = get_real_flags(java_line_flags, \
+    l_termios.c_lflag = (unsigned int)get_real_flags(java_line_flags, \
                                         line_flags, \
                                         (*env)->GetIntField(env, termios, field_ids[3]), \
                                         number_line_flags);
+    
+#ifdef DEBUG
+    syslog(LOG_USER | LOG_DEBUG, "c_cflag = %u", l_termios.c_cflag);
+#endif
     
     jbyteArray j_c_cc = (*env)->GetObjectField(env, termios, field_ids[4]);
     (*env)->GetByteArrayRegion(env, j_c_cc, 0, 32, (jbyte*)(l_termios.c_cc));
@@ -147,6 +151,104 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
         }
     }
     return return_value;
+    
+}
+
+/**
+ * This function is a wrapper around the tcgetattr() function. See termios.h
+ * 
+ * @param env
+ * @param obj
+ * @param fileDescriptor integer value of the serial port file descriptor.
+ * @return TermIOS Java object representing the terminal settings.
+ * @throws IOException if an error occurs.
+ */
+JNIEXPORT jobject JNICALL 
+Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes (JNIEnv *env, 
+                                                                jobject obj,
+                                                                jint fileDescriptor){
+    jclass termiosClass;
+    jmethodID cid;      //Constructor ID for TermIOS
+    jfieldID field_ids[JAVA_TERMIOS_FIELD_COUNT];
+    jobject returnObject = NULL;
+    struct termios l_termios;
+    tcflag_t* termios_flags[] = { &l_termios.c_iflag, &l_termios.c_oflag, \
+                                    &l_termios.c_cflag, &l_termios.c_lflag };
+    // An array of pointers to the Java flags used in TermIOS
+    const int* const java_flags_array[] = {java_input_flags, java_output_flags, java_control_flags, java_line_flags};
+    // An array of pointers to native flags used in termios structure.
+    const int* const native_flags_array[] = {input_flags, output_flags, control_flags, line_flags};
+    //An array of sizes of each array in the above two.
+    int flags_array_sizes[] = {number_input_flags, number_output_flags, number_control_flags, number_line_flags};
+    int i;
+#ifdef DEBUG
+    syslog(LOG_USER | DEBUG, "Entered getNativeTerminalAttributes." );
+#endif
+    termiosClass = (*env)->FindClass(env,TERMIOS_CLASS_STRING);
+    if (termiosClass == NULL){
+        //Throw exception and return null
+        returnObject = NULL;
+        
+    }else{
+        //Try to get the default constructor
+        cid = (*env)->GetMethodID(env, termiosClass, "<init>", "()V");
+        if (cid == NULL){
+            returnObject = NULL;
+        } else {
+            returnObject = (*env)->NewObject(env, termiosClass, cid);
+            if (returnObject == NULL){
+                //Exception thrown. return NULL
+            } else {
+                // Get the termios structure for the fileDescriptor
+                int result = tcgetattr(fileDescriptor, &l_termios);
+#ifdef DEBUG
+                syslog(LOG_USER | LOG_DEBUG, "termios struct: c_iflag:%d c_oflag:%d c_cflag:%d c_lflag:%d", l_termios.c_iflag, l_termios.c_oflag, l_termios.c_cflag, l_termios.c_lflag);
+#endif
+                if (result == -1){
+                    // Throw exception.
+                    jint error = errno;
+                    jclass newIOException = (*env)->FindClass(env, \
+                        "java/io/IOException");
+                    if (newIOException != NULL){
+                        (*env)->ThrowNew(env, newIOException, strerror(error));
+                    } else {
+                        returnObject = NULL;
+                    }
+                } else {
+                     
+                    int result = get_field_ids(env, termiosClass, \
+                                                    java_termios_fields, \
+                                                    java_termios_field_descriptors, \
+                                                    field_ids, \
+                                                    JAVA_TERMIOS_FIELD_COUNT);
+                    if (result != 0){
+                        // Exception will automatically be thrown in the Java code.
+                        returnObject = NULL;
+                    } else {
+                        unsigned int flag = 0;
+                        for (i = 0; i < JAVA_TERMIOS_FIELD_COUNT - 1; i++){
+#ifdef DEBUG
+                            syslog(LOG_USER | LOG_DEBUG, "termios.%s = %u", java_termios_fields[i], (unsigned int) *termios_flags[i]);
+#endif
+                            flag = get_java_flags(java_flags_array[i], \
+                                                   native_flags_array[i],     \
+                                                    (int) *termios_flags[i], \
+                                                    flags_array_sizes[i]);
+#ifdef DEBUG
+                            syslog(LOG_USER | LOG_DEBUG, "Returned flag value: %d", flag);
+#endif
+                            (*env)->SetIntField(env, returnObject, field_ids[i], (int) flag);
+                        }
+                        //Set the control characters
+                        jbyteArray j_c_cc = (*env)->GetObjectField(env, returnObject, field_ids[4]);
+                        (*env)->SetByteArrayRegion(env, j_c_cc, 0, NCCS, l_termios.c_cc);
+                    }
+                }
+            }
+        }
+    }
+    
+    return returnObject;
     
 }
 
@@ -169,4 +271,49 @@ int get_real_flags(const int java_flags[], \
             return_flag |= native_flags[count];
     }
     return return_flag;
+}
+
+int get_java_flags(const int java_flags[], const int native_flags[], \
+                            const int selected_flags, const int size){
+    int return_flags = 0, i = 0;
+#ifdef DEBUG
+    syslog(LOG_USER | LOG_DEBUG, "Selected flags : %d, size : %d", selected_flags, size);
+#endif
+    for (; i < size; i++){
+
+        if ((selected_flags & native_flags[i]) == native_flags[i])
+            return_flags |= java_flags[i];
+#ifdef DEBUG
+        syslog(LOG_USER | LOG_DEBUG, "Native Flag: %d, Java Flag: %d, Return Flag: %d", native_flags[i], java_flags[i], return_flags);
+#endif
+    }
+    return return_flags;
+}
+
+/**
+ * A helper function to obtain the field ids for a given class, filed names and
+ * their descriptors.
+ * @param env
+ * @param cls
+ * @param field_names A char array of field names to obatin IDs.
+ * @param field_name_descriptors Java descriptors of the field types.
+ * @param field_ids The array where the field IDs will be returned.
+ * @param field_count The number of field IDs to obtain. This number should
+ * equal the length of arrays field_names and field_name_descriptors.
+ * @return 0 upon success or throws and exception in the JVM and returns -1.
+ */
+int get_field_ids(JNIEnv* env, jclass cls, const char* const field_names[], \
+                                            const char* const field_name_descriptors[],
+                                            jfieldID field_ids[], \
+                                            const int field_count){
+    int count, return_value = 0;
+    for (count = 0; count < field_count; count++){
+        field_ids[count] = (*env)->GetFieldID(env, cls, field_names[count], field_name_descriptors[count] );
+        if (field_ids[count] == NULL){
+            // Exception automatically thrown. break and return -1
+            return_value = -1;
+            break;
+        }
+    }
+    return return_value;
 }

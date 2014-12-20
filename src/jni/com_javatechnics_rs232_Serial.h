@@ -39,6 +39,14 @@ JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_closeSerialPort
 JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes
   (JNIEnv *, jobject, jint, jint, jobject);
 
+/*
+ * Class:     com_javatechnics_rs232_Serial
+ * Method:    getNativeTerminalAttributes
+ * Signature: (I)Lcom/javatechnics/rs232/TermIOS;
+ */
+JNIEXPORT jobject JNICALL Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes
+  (JNIEnv *, jobject, jint);
+
 #ifdef __cplusplus
 }
 #endif

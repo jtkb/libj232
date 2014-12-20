@@ -11,6 +11,18 @@
 #include <string.h>
 #include <jni.h>
 #include "jni/com_javatechnics_rs232_Serial.h"
+#ifdef DEBUG
+#include <syslog.h>
+#endif
+
+/*
+ Java Class Strings
+ */
+#define CONTROL_CHARACTERS_CLASS_STRING "com/javatechnics/rs232/ControlCharacters"
+#define CONTROL_FLAGS_CLASS_STRING "com/javatechnics/rs232/ControlFlags"
+#define TERMIOS_CLASS_STRING "com/javatechnics/rs232/TermIOS"
+#define TERMINAL_CONTROL_ACTIONS_CLASS_STRING "com/javatechnics/rs232/TerminalControlActions"
+
 
 const int java_open_flags[] = {0x00001, 0x00002, 0x00004, 0x00008, \
                         0x00010, 0X00020, 0X00040, 0X00080, \
@@ -138,4 +150,11 @@ const char* java_termios_field_descriptors[] = { "I", "I", "I", "I", "[B"};
 int get_real_flags(const int java_flags[], const int native_flags[], \
                             const int selected_flags, const int size);
 
+int get_java_flags(const int java_flags[], const int native_flags[], \
+                            const int selected_flags, const int size);
+
+int get_field_ids(JNIEnv* env, jclass cls, const char* const field_names[], \
+                                            const char* const field_name_descriptors[],
+                                            jfieldID field_ids[], \
+                                            const int field_count);
 #endif
