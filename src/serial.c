@@ -325,6 +325,32 @@ Java_com_javatechnics_rs232_Serial_setNativeModemcontrolBits (JNIEnv * env,
     if (return_value == -1)
         throw_ioexception(env, errno);
 }
+
+/**
+ * This function is a wrapper around tcflush().
+ * @param env pointer to JNI environment.
+ * @param jobj the calling object.
+ * @param fileDescriptor file descriptor of the serial port.
+ * @param queue_selector input and/or output queue selector.
+ * @return 
+ */
+JNIEXPORT jint JNICALL 
+Java_com_javatechnics_rs232_Serial_nativeTCFlush (JNIEnv * env, 
+                                            jobject jobj, 
+                                            jint fileDescriptor,
+                                            jint queue_selector){
+    int return_value = 0, native_queue_selector = 0;
+    native_queue_selector = get_native_value(java_flush_queue_selector,
+                                                flush_queue_selector,
+                                                queue_selector,
+                                                number_flush_queue_selectors);
+    return_value = tcflush(fileDescriptor, native_queue_selector);
+    if (return_value == -1)
+        throw_ioexception(env, errno);
+    return return_value;
+    
+}
+
 /**
  * A helper method that throws an IOException in the JVM.
  * @param env pointer to the JNI environment.

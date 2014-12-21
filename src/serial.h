@@ -218,6 +218,19 @@ const int modem_control_flags[] = {
 const int number_modem_control_flags = 
                 sizeof(modem_control_flags) / sizeof(modem_control_flags[0]);
 
+const int java_flush_queue_selector[] = {
+    0,
+    1,
+    2};
+
+const int flush_queue_selector[] = {
+    TCIFLUSH,
+    TCOFLUSH,
+    TCIOFLUSH};
+
+const int number_flush_queue_selectors = sizeof(flush_queue_selector) /  \
+                                            sizeof(flush_queue_selector[0]);
+
 int get_real_flags(const int java_flags[], const int native_flags[], \
                             const int selected_flags, const int size);
 

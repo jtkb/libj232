@@ -63,6 +63,14 @@ JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_getNativeModemControlB
 JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_setNativeModemcontrolBits
   (JNIEnv *, jobject, jint, jint);
 
+/*
+ * Class:     com_javatechnics_rs232_Serial
+ * Method:    nativeTCFlush
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_nativeTCFlush
+  (JNIEnv *, jobject, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif
