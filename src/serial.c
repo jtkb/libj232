@@ -251,6 +251,97 @@ Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes (JNIEnv *env,
     return returnObject;
     
 }
+/**
+ * This function is a wrapper around ioctl() and gets the serial port control
+ * bits.
+ * @param env Pointer to the JNI environment.
+ * @param jobj the calling object.
+ * @param file_descriptor the file descriptor of serial port.
+ * @param flags the ioctl request flags.
+ * @return the requested control bits or -1 if an error and IOException was
+ * not thrown.
+ * @throws IOException if an error occurs.
+ */
+JNIEXPORT jint JNICALL 
+Java_com_javatechnics_rs232_Serial_getNativeModemControlBits (JNIEnv * env,
+                                                    jobject jobj,
+                                                    jint file_descriptor,
+                                                    jint ioctl_request){
+    int return_value = 0;
+    unsigned int control_bits = 0;
+    int native_request = get_native_value(java_modem_control_requests,
+                                            modem_control_requests,
+                                            ioctl_request,
+                                            number_modem_control_requests);
+    
+
+    if (native_request !=-1){
+#ifdef DEBUG
+        syslog(LOG_USER | LOG_DEBUG, "Native request flag is: %x", native_request);
+#endif
+        ioctl(file_descriptor, native_request, &control_bits);
+        if (return_value == -1){
+            throw_ioexception(env, errno);
+        } else {
+            // Convert native to Java values.
+
+            return_value = get_java_flags(java_modem_control_flags, 
+                                            modem_control_flags,
+                                            control_bits,
+                                            number_modem_control_flags);
+
+        }
+    } else {
+        return_value = -1;
+        //TODO: Throw an exception
+    }
+    return return_value;
+}
+
+/**
+ * This function is a wrapper around ioctl() and sets the serial port control
+ * bits.
+ * @param env Pointer to the JNI environment.
+ * @param jobj the calling Java object.
+ * @param fileDescriptor file descriptor of the serial port.
+ * @param flags the modem control bits to set.
+ * @return 0 if success -1 if an error occurs and an exception not thrown.
+ * @throws IOException if an error occurs.
+ */
+JNIEXPORT jint JNICALL
+Java_com_javatechnics_rs232_Serial_setNativeModemcontrolBits (JNIEnv * env,
+                                                    jobject jobj,
+                                                    jint fileDescriptor,
+                                                    jint flags){
+    int return_value = 0;
+    int native_flags = get_real_flags(java_modem_control_flags,
+                                        modem_control_flags,
+                                        flags,
+                                        number_modem_control_flags);
+#ifdef DEBUG
+    syslog(LOG_USER | LOG_DEBUG, "Native Modem Control Bits to Set: %x", native_flags);
+#endif
+    return_value = ioctl(fileDescriptor, TIOCMSET, &native_flags);
+    if (return_value == -1)
+        throw_ioexception(env, errno);
+}
+/**
+ * A helper method that throws an IOException in the JVM.
+ * @param env pointer to the JNI environment.
+ * @param error_number error number, typically as reported in global <i>errno</i>.
+ * @return 0 upon success or -1 if IOException could not be thrown.
+ */
+int throw_ioexception(JNIEnv *env, int error_number){
+    int return_value = 0;
+    jclass newIOException = (*env)->FindClass(env, \
+                        "java/io/IOException");
+    if (newIOException != NULL){
+        (*env)->ThrowNew(env, newIOException, strerror(error_number));
+    } else {
+        return_value = -1;
+    }
+    return return_value;
+}
 
 /**
  *  This is a helper function that converts Java-defined flag values to their
@@ -273,6 +364,16 @@ int get_real_flags(const int java_flags[], \
     return return_flag;
 }
 
+/**
+ * This is a helper function that converts a native flag int into a java
+ * flag int.
+ * @param java_flags an array of java flags
+ * @param native_flags an array of native flags, equivalent index-for-index to
+ * the java_flags array.
+ * @param selected_flags the value of the native flag
+ * @param size the size of java_flags and thus native flags.
+ * @return the equivalent java flag value.
+ */
 int get_java_flags(const int java_flags[], const int native_flags[], \
                             const int selected_flags, const int size){
     int return_flags = 0, i = 0;
@@ -316,4 +417,27 @@ int get_field_ids(JNIEnv* env, jclass cls, const char* const field_names[], \
         }
     }
     return return_value;
+}
+
+/**
+ * A helper function that gets single native flag value from an array of native flag 
+ * values for a given java flag value.
+ * @param java_values The array of Java flags from which java_value comes from.
+ * @param native_flags The array of native flags that match index value for
+ * index value the array of java values.
+ * @param java_value the java flag for which a native flag value is sought
+ * @param size the size of java_values array which should also be the size (as
+ * a minimum) as native_flags array.
+ * @return the native flag value or -1 if it cannot be found.
+ */
+int get_native_value(const int const java_values[], const int const native_flags[],
+                            const int java_value, const int size){
+    int return_value = -1, i = 0;
+    for (; i < size; i++){
+        if (java_value == java_values[i]){
+            return_value = native_flags[i];
+            break;
+        }
+    }
+    return return_value;    
 }

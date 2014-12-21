@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <string.h>
 #include <jni.h>
@@ -147,6 +148,76 @@ const char* java_termios_field_descriptors[] = { "I", "I", "I", "I", "[B"};
 
 #define JAVA_TERMIOS_FIELD_COUNT 5
 
+const int java_modem_control_requests[] = {0x5401,
+    0x5402,
+    0x5403,
+    0x5404,
+    0x5405,
+    0x5406,
+    0x5407,
+    0x5408,
+    0x5409,
+    0x540A,
+    0x540B,
+    0x5415,
+    0x5418,
+    0x5419,
+    0x541A,
+    0x541B
+    };
+
+const int modem_control_requests[] = {
+TCGETS,
+    TCSETS,
+    TCSETSW,
+    TCSETSF,
+    TCGETA,
+    TCSETA,
+    TCSETAW,
+    TCSETAF,
+    TCSBRK,
+    TCXONC,
+    TCFLSH,
+    TIOCMGET,
+    TIOCMSET,
+    TIOCGSOFTCAR,
+    TIOCSSOFTCAR,
+    FIONREAD};
+
+const int number_modem_control_requests = 
+                sizeof(modem_control_requests) / sizeof(modem_control_requests[0]);
+
+const int java_modem_control_flags[] = {
+//Modem Control lines
+    0x001,
+    0x002,
+    0x004,
+    0x008,
+    0x010,
+    0x020,
+    0x040,
+    0x080,
+    0x100,
+    0x040,
+    0x080};
+
+const int modem_control_flags[] = {
+//Modem Control lines
+    TIOCM_LE,
+    TIOCM_DTR,
+    TIOCM_RTS,
+    TIOCM_ST,
+    TIOCM_SR,
+    TIOCM_CTS,
+    TIOCM_CAR,
+    TIOCM_RNG,
+    TIOCM_DSR,
+    TIOCM_CD,
+    TIOCM_RI};
+
+const int number_modem_control_flags = 
+                sizeof(modem_control_flags) / sizeof(modem_control_flags[0]);
+
 int get_real_flags(const int java_flags[], const int native_flags[], \
                             const int selected_flags, const int size);
 
@@ -157,4 +228,7 @@ int get_field_ids(JNIEnv* env, jclass cls, const char* const field_names[], \
                                             const char* const field_name_descriptors[],
                                             jfieldID field_ids[], \
                                             const int field_count);
+
+int get_native_value(const int const java_values[], const int const native_flags[],
+                            const int java_value, const int size);
 #endif

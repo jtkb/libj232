@@ -47,6 +47,22 @@ JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_setNativeTerminalAttri
 JNIEXPORT jobject JNICALL Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes
   (JNIEnv *, jobject, jint);
 
+/*
+ * Class:     com_javatechnics_rs232_Serial
+ * Method:    getNativeModemControlBits
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_getNativeModemControlBits
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     com_javatechnics_rs232_Serial
+ * Method:    setNativeModemcontrolBits
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_setNativeModemcontrolBits
+  (JNIEnv *, jobject, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif
