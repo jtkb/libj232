@@ -244,4 +244,13 @@ int get_field_ids(JNIEnv* env, jclass cls, const char* const field_names[], \
 
 int get_native_value(const int const java_values[], const int const native_flags[],
                             const int java_value, const int size);
+
+// #################################################################
+//
+//                      TEST VARIABLES
+//
+// #################################################################
+
+int fd = 0;
+int nativeTestOpen();
 #endif
