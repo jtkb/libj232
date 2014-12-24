@@ -542,11 +542,13 @@ Java_com_javatechnics_rs232_Serial_nativePreparePort  (JNIEnv * env,
         mcr = 0;	
         return_value = ioctl(fd,TIOCMGET,&mcr);
         if (return_value != -1){
-            mcr &= ~TIOCM_RTS;
-            mcr |= TIOCM_DTR;
-            return_value = ioctl(fd,TIOCMSET,&mcr);
+            //mcr &= ~TIOCM_RTS;
+            //mcr |= TIOCM_DTR;
+            //return_value = ioctl(fd,TIOCMSET,&mcr);
+            return_value = 0;
             if (return_value != -1){
-                return_value = tcflush(fd, TCIFLUSH);
+                //return_value = tcflush(fd, TCIFLUSH);
+                return_value = 0;
                 if (return_value == -1)
                     throw_ioexception(env, errno);
             } else {
