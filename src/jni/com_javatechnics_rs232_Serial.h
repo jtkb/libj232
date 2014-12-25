@@ -49,30 +49,6 @@ JNIEXPORT jobject JNICALL Java_com_javatechnics_rs232_Serial_getNativeTerminalAt
 
 /*
  * Class:     com_javatechnics_rs232_Serial
- * Method:    nativePreparePort
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_nativePreparePort
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_javatechnics_rs232_Serial
- * Method:    nativeTestOpen
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_nativeTestOpen__
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_javatechnics_rs232_Serial
- * Method:    nativeTestOpen
- * Signature: (Ljava/lang/String;I)I
- */
-JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_nativeTestOpen__Ljava_lang_String_2I
-  (JNIEnv *, jobject, jstring, jint);
-
-/*
- * Class:     com_javatechnics_rs232_Serial
  * Method:    getNativeModemControlBits
  * Signature: (II)I
  */
