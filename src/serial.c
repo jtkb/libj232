@@ -333,21 +333,27 @@ Java_com_javatechnics_rs232_Serial_setNativeModemcontrolBits (JNIEnv * env,
  * @param jobj the calling object.
  * @param fileDescriptor file descriptor of the serial port.
  * @param queue_selector input and/or output queue selector.
- * @return 
+ * @return 0 upon success -1 if an error occurs and an exception not thrown.
+ * @throws IOException if an error occurs.
  */
 JNIEXPORT jint JNICALL 
 Java_com_javatechnics_rs232_Serial_nativeTCFlush (JNIEnv * env, 
                                             jobject jobj, 
                                             jint fileDescriptor,
                                             jint queue_selector){
-    int return_value = 0, native_queue_selector = 0;
+    int return_value = 0, native_queue_selector = 0, i = 0;
     native_queue_selector = get_native_value(java_flush_queue_selector,
                                                 flush_queue_selector,
                                                 queue_selector,
                                                 number_flush_queue_selectors);
-    return_value = tcflush(fileDescriptor, native_queue_selector);
-    if (return_value == -1)
-        throw_ioexception(env, errno);
+    for (; i < 3; i++){
+        return_value = tcflush(fileDescriptor, native_queue_selector);
+        if (return_value == -1){
+            throw_ioexception(env, errno);
+            break;
+        }
+        usleep(150);
+    }
     return return_value;
     
 }

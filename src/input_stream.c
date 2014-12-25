@@ -14,7 +14,7 @@ Java_com_javatechnics_rs232_stream_SerialPortInputStream_readNative (JNIEnv * en
     if (result == -1){
         throw_ioexception(env, errno);
     } else {
-        //(*env)->SetByteArrayRegion(env, buffer, offset, result, n_buffer);
+        (*env)->SetByteArrayRegion(env, buffer, offset, result, n_buffer);
     }
     return result;
     //return 0;
