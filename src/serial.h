@@ -81,18 +81,18 @@ const int control_flags[] = \
 
 const int number_control_flags = sizeof(control_flags) / sizeof(control_flags[0]);
 
-const int java_line_flags[] = {0000001,     0000002,   0000004,     0000010, \
+const int java_local_flags[] = {0000001,     0000002,   0000004,     0000010, \
                                 0000020,    0000040,    0000100,    0000200, \
                                 0000400,    0001000,    0002000,    0004000, \
                                 0010000,    0040000,    0100000};
 
-const int line_flags[] = \
+const int local_flags[] = \
                         {ISIG,      ICANON,     XCASE,       ECHO, \
                         ECHOE,      ECHOK,      ECHONL,     NOFLSH, \
                         TOSTOP,     ECHOCTL,    ECHOPRT,    ECHOKE, \
                         FLUSHO,     PENDIN,     IEXTEN};
 
-const int number_line_flags = sizeof(line_flags) / sizeof(line_flags[0]);
+const int number_local_flags = sizeof(local_flags) / sizeof(local_flags[0]);
 
 const int java_input_flags[] = \
                         {   0000001,    0000002,    0000004,    0000010, \

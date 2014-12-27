@@ -136,16 +136,15 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
                                         control_flags, \
                                         (*env)->GetIntField(env, termios, field_ids[2]), \
                                         number_control_flags);
-    /*l_termios.c_lflag = get_real_flags(java_line_flags, \
-                                        line_flags, \
+    l_termios.c_lflag = get_real_flags(java_local_flags, \
+                                        local_flags, \
                                         (*env)->GetIntField(env, termios, field_ids[3]), \
-                                        number_line_flags);*/
-    l_termios.c_lflag = -3;
+                                        number_local_flags);
     
 #ifdef DEBUG
     syslog(LOG_USER | LOG_DEBUG, "c_cflag = %u", l_termios.c_cflag);
 #endif
-    syslog(LOG_USER | LOG_DEBUG, "Setting c_cflag: %d  c_iflag: %d   c_oflag: %d  c_lflag: %d", l_termios.c_cflag, l_termios.c_iflag, l_termios.c_oflag, l_termios.c_lflag);
+    syslog(LOG_USER | LOG_DEBUG, "Setting c_cflag: 0x%x  c_iflag: 0x%x   c_oflag: 0x%x  c_lflag: 0x%x", l_termios.c_cflag, l_termios.c_iflag, l_termios.c_oflag, l_termios.c_lflag);
     jbyteArray j_c_cc = (*env)->GetObjectField(env, termios, field_ids[4]);
     (*env)->GetByteArrayRegion(env, j_c_cc, 0, 32, (jbyte*)(l_termios.c_cc));
     
@@ -183,11 +182,11 @@ Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes (JNIEnv *env,
     tcflag_t* termios_flags[] = { &l_termios.c_iflag, &l_termios.c_oflag, \
                                     &l_termios.c_cflag, &l_termios.c_lflag };
     // An array of pointers to the Java flags used in TermIOS
-    const int* const java_flags_array[] = {java_input_flags, java_output_flags, java_control_flags, java_line_flags};
+    const int* const java_flags_array[] = {java_input_flags, java_output_flags, java_control_flags, java_local_flags};
     // An array of pointers to native flags used in termios structure.
-    const int* const native_flags_array[] = {input_flags, output_flags, control_flags, line_flags};
+    const int* const native_flags_array[] = {input_flags, output_flags, control_flags, local_flags};
     //An array of sizes of each array in the above two.
-    int flags_array_sizes[] = {number_input_flags, number_output_flags, number_control_flags, number_line_flags};
+    int flags_array_sizes[] = {number_input_flags, number_output_flags, number_control_flags, number_local_flags};
     int i;
 #ifdef DEBUG
     syslog(LOG_USER | DEBUG, "Entered getNativeTerminalAttributes." );
