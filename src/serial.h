@@ -15,7 +15,7 @@
 #ifdef DEBUG
 #include <syslog.h>
 #endif
-
+#include <syslog.h>
 /*
  Java Class Strings
  */
@@ -24,6 +24,19 @@
 #define TERMIOS_CLASS_STRING "com/javatechnics/rs232/TermIOS"
 #define TERMINAL_CONTROL_ACTIONS_CLASS_STRING "com/javatechnics/rs232/TerminalControlActions"
 
+/*
+ Have included these defines here because they are defined in
+ asm-generic/termios.h only. Netbeans complaisn that it cannot find them
+ */
+#ifndef TIOCM_OUT1
+#define TIOCM_OUT1 0x2000
+#endif
+#ifndef TIOCM_OUT2
+#define TIOCM_OUT2 0x4000
+#endif
+#ifndef TIOCM_LOOP
+#define TIOCM_LOOP 0x8000
+#endif
 
 const int java_open_flags[] = {0x00001, 0x00002, 0x00004, 0x00008, \
                         0x00010, 0X00020, 0X00040, 0X00080, \
@@ -68,18 +81,18 @@ const int control_flags[] = \
 
 const int number_control_flags = sizeof(control_flags) / sizeof(control_flags[0]);
 
-const int java_line_flags[] = {0000001,     0000002,   0000004,     0000010, \
+const int java_local_flags[] = {0000001,     0000002,   0000004,     0000010, \
                                 0000020,    0000040,    0000100,    0000200, \
                                 0000400,    0001000,    0002000,    0004000, \
                                 0010000,    0040000,    0100000};
 
-const int line_flags[] = \
+const int local_flags[] = \
                         {ISIG,      ICANON,     XCASE,       ECHO, \
                         ECHOE,      ECHOK,      ECHONL,     NOFLSH, \
                         TOSTOP,     ECHOCTL,    ECHOPRT,    ECHOKE, \
                         FLUSHO,     PENDIN,     IEXTEN};
 
-const int number_line_flags = sizeof(line_flags) / sizeof(line_flags[0]);
+const int number_local_flags = sizeof(local_flags) / sizeof(local_flags[0]);
 
 const int java_input_flags[] = \
                         {   0000001,    0000002,    0000004,    0000010, \
@@ -187,20 +200,6 @@ TCGETS,
 const int number_modem_control_requests = 
                 sizeof(modem_control_requests) / sizeof(modem_control_requests[0]);
 
-const int java_modem_control_flags[] = {
-//Modem Control lines
-    0x001,
-    0x002,
-    0x004,
-    0x008,
-    0x010,
-    0x020,
-    0x040,
-    0x080,
-    0x100,
-    0x040,
-    0x080};
-
 const int modem_control_flags[] = {
 //Modem Control lines
     TIOCM_LE,
@@ -213,7 +212,43 @@ const int modem_control_flags[] = {
     TIOCM_RNG,
     TIOCM_DSR,
     TIOCM_CD,
-    TIOCM_RI};
+    TIOCM_RI,
+#ifdef TIOCM_OUT1
+    TIOCM_OUT1,
+    #endif
+#ifdef TIOCM_OUT2
+    TIOCM_OUT2, 
+#endif
+#ifdef TIOCM_LOOP
+    TIOCM_LOOP,
+#endif
+    };
+
+const int java_modem_control_flags[] = {
+//Modem Control lines
+    0x001,
+    0x002,
+    0x004,
+    0x008,
+    0x010,
+    0x020,
+    0x040,
+    0x080,
+    0x100,
+    0x040,
+    0x080,
+#ifdef TIOCM_OUT1
+    0x2000,
+#endif
+#ifdef TIOCM_OUT2
+    0x4000,
+#endif
+#ifdef TIOCM_LOOP
+    0x8000,
+#endif
+};
+
+
 
 const int number_modem_control_flags = 
                 sizeof(modem_control_flags) / sizeof(modem_control_flags[0]);

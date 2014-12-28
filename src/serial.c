@@ -98,7 +98,8 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
     jfieldID field_ids[5] = {0, 0, 0, 0, 0};
     int i = 0;
     struct termios l_termios;
-    
+    //Ensure the termios structure is zeroed.
+    bzero(&l_termios, sizeof(l_termios));
     //Get the terminal action flags
     int termattr = get_real_flags(java_terminal_settings_flags,
                                     terminal_settings_flags,
@@ -118,6 +119,11 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
         }
     }
     
+    syslog(LOG_USER | LOG_DEBUG, "Passed in flag values:: c_cflag: %d  c_iflag: %d   c_oflag: %d  c_lflag: %d", (*env)->GetIntField(env, termios, field_ids[2]), \
+                                                                                                                (*env)->GetIntField(env, termios, field_ids[0]), \
+                                                                                                                (*env)->GetIntField(env, termios, field_ids[1]), \
+                                                                                                                (*env)->GetIntField(env, termios, field_ids[3]));
+    
     l_termios.c_iflag = get_real_flags(java_input_flags, \
                                         input_flags, \
                                         (*env)->GetIntField(env, termios, field_ids[0]), \
@@ -130,15 +136,15 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
                                         control_flags, \
                                         (*env)->GetIntField(env, termios, field_ids[2]), \
                                         number_control_flags);
-    l_termios.c_lflag = (unsigned int)get_real_flags(java_line_flags, \
-                                        line_flags, \
+    l_termios.c_lflag = get_real_flags(java_local_flags, \
+                                        local_flags, \
                                         (*env)->GetIntField(env, termios, field_ids[3]), \
-                                        number_line_flags);
+                                        number_local_flags);
     
 #ifdef DEBUG
     syslog(LOG_USER | LOG_DEBUG, "c_cflag = %u", l_termios.c_cflag);
 #endif
-    
+    syslog(LOG_USER | LOG_DEBUG, "Setting c_cflag: 0x%x  c_iflag: 0x%x   c_oflag: 0x%x  c_lflag: 0x%x", l_termios.c_cflag, l_termios.c_iflag, l_termios.c_oflag, l_termios.c_lflag);
     jbyteArray j_c_cc = (*env)->GetObjectField(env, termios, field_ids[4]);
     (*env)->GetByteArrayRegion(env, j_c_cc, 0, 32, (jbyte*)(l_termios.c_cc));
     
@@ -176,11 +182,11 @@ Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes (JNIEnv *env,
     tcflag_t* termios_flags[] = { &l_termios.c_iflag, &l_termios.c_oflag, \
                                     &l_termios.c_cflag, &l_termios.c_lflag };
     // An array of pointers to the Java flags used in TermIOS
-    const int* const java_flags_array[] = {java_input_flags, java_output_flags, java_control_flags, java_line_flags};
+    const int* const java_flags_array[] = {java_input_flags, java_output_flags, java_control_flags, java_local_flags};
     // An array of pointers to native flags used in termios structure.
-    const int* const native_flags_array[] = {input_flags, output_flags, control_flags, line_flags};
+    const int* const native_flags_array[] = {input_flags, output_flags, control_flags, local_flags};
     //An array of sizes of each array in the above two.
-    int flags_array_sizes[] = {number_input_flags, number_output_flags, number_control_flags, number_line_flags};
+    int flags_array_sizes[] = {number_input_flags, number_output_flags, number_control_flags, number_local_flags};
     int i;
 #ifdef DEBUG
     syslog(LOG_USER | DEBUG, "Entered getNativeTerminalAttributes." );
@@ -277,9 +283,9 @@ Java_com_javatechnics_rs232_Serial_getNativeModemControlBits (JNIEnv * env,
     
 
     if (native_request !=-1){
-#ifdef DEBUG
-        syslog(LOG_USER | LOG_DEBUG, "Native request flag is: %x", native_request);
-#endif
+//#ifdef DEBUG
+        syslog(LOG_USER | LOG_DEBUG, "Native request flag is: %x, Number of modem control flags = %d", native_request, number_modem_control_flags);
+//#endif
         ioctl(file_descriptor, native_request, &control_bits);
         if (return_value == -1){
             throw_ioexception(env, errno);
@@ -290,8 +296,9 @@ Java_com_javatechnics_rs232_Serial_getNativeModemControlBits (JNIEnv * env,
                                             modem_control_flags,
                                             control_bits,
                                             number_modem_control_flags);
-
+            syslog(LOG_USER | LOG_DEBUG, "Native Modem Control bits: 0x%x  Java Modem control bits: 0x%x", control_bits, return_value);
         }
+        
     } else {
         return_value = -1;
         //TODO: Throw an exception
@@ -319,9 +326,9 @@ Java_com_javatechnics_rs232_Serial_setNativeModemcontrolBits (JNIEnv * env,
                                         modem_control_flags,
                                         flags,
                                         number_modem_control_flags);
-#ifdef DEBUG
+//#ifdef DEBUG
     syslog(LOG_USER | LOG_DEBUG, "Native Modem Control Bits to Set: %x", native_flags);
-#endif
+//#endif
     return_value = ioctl(fileDescriptor, TIOCMSET, &native_flags);
     if (return_value == -1)
         throw_ioexception(env, errno);
@@ -391,8 +398,10 @@ int get_real_flags(const int java_flags[], \
                     const int size){
     int return_flag = 0, count = 0;
     for (; count < size; count++){
-        if (selected_flags & java_flags[count])
+        if ((selected_flags & java_flags[count]) == java_flags[count])
             return_flag |= native_flags[count];
+        
+        //syslog(LOG_USER | LOG_DEBUG, "Native Flag: %d, Java Flag: %d, Return Flag: %d", native_flags[count], java_flags[count], return_flag);
     }
     return return_flag;
 }
@@ -474,3 +483,67 @@ int get_native_value(const int const java_values[], const int const native_flags
     }
     return return_value;    
 }
+
+//#############################################################################
+//
+//                      TEST METHODS
+//
+//############################################################################
+
+JNIEXPORT jint JNICALL 
+Java_com_javatechnics_rs232_Serial_nativeTestRead (JNIEnv *env, \
+                                                    jobject jobj, \
+                                                    jint fd, \
+                                                    jint flags){
+    
+                                                    
+    unsigned int mcr,res;
+    struct termios newtio;
+    bzero(&newtio, sizeof(newtio));
+    unsigned char buf[255];
+    syslog(LOG_USER | LOG_DEBUG, "****** Entered nativeTestRead(). *******");
+    //newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD ;
+    newtio.c_cflag = B2400 | CS7 | CLOCAL | CREAD ;
+    //newtio.c_cflag = CBAUD | CS8 | CREAD;  ** This line causes the serial port to lock up after use!
+    newtio.c_iflag = ICRNL;
+    newtio.c_oflag = 0;
+    newtio.c_lflag = ~ICANON;
+
+    newtio.c_cc[VINTR]    = 0;     /* Ctrl-c */ 
+    newtio.c_cc[VQUIT]    = 0;     /* Ctrl-\ */
+    newtio.c_cc[VERASE]   = 0;     /* del */
+    newtio.c_cc[VKILL]    = 0;     /* @ */
+    newtio.c_cc[VEOF]     = 0;     /* Ctrl-d */
+    newtio.c_cc[VTIME]    = 1;     /* inter-character timer unused */
+    newtio.c_cc[VMIN]     = 14;     /* blocking read until 1 character arrives */
+    newtio.c_cc[VSWTC]    = 0;     /* '\0' */
+    newtio.c_cc[VSTART]   =17;     /* Ctrl-q */ 
+    newtio.c_cc[VSTOP]    =19;     /* Ctrl-s */
+    newtio.c_cc[VSUSP]    = 0;     /* Ctrl-z */
+    newtio.c_cc[VEOL]     = 0;     /* '\0' */
+    newtio.c_cc[VREPRINT] = 0;     /* Ctrl-r */
+    newtio.c_cc[VDISCARD] = 0;     /* Ctrl-u */
+    newtio.c_cc[VWERASE]  = 0;     /* Ctrl-w */
+    newtio.c_cc[VLNEXT]   = 0;     /* Ctrl-v */
+    newtio.c_cc[VEOL2]    = 0;     /* '\0' */
+
+    syslog(LOG_USER | LOG_DEBUG, "Setting c_cflag: %d  c_iflag: %d   c_oflag: %d  c_lflag: %d", newtio.c_cflag, newtio.c_iflag, newtio.c_oflag, newtio.c_lflag);
+    tcsetattr(fd,TCSANOW,&newtio);
+    /*mcr = 0;	
+    ioctl(fd,TIOCMGET,&mcr);
+    mcr &= ~TIOCM_RTS;
+    mcr |= TIOCM_DTR;
+    ioctl(fd,TIOCMSET,&mcr);*/
+
+    //tcflush(fd, TCIFLUSH);
+    //res = read(fd,buf,255); 
+    syslog(LOG_USER | LOG_DEBUG, "Read %d bytes.", res);
+    syslog(LOG_USER | LOG_DEBUG, "****** Leaving nativeTestRead(). *******");
+    return 0;
+}
+
+//############################################################################
+//
+//                      END OF TEST METHODS
+//
+//############################################################################
