@@ -39,6 +39,15 @@ int main(char *argv[], int argc){
 ```
 It occured to me that writing a Java package and its complimentary native library would be relatively easy in Linux. Simply wrap the native function calls with JNI functions which can then be called from Java classes. Don't even attempt to try and do anything complicated in the C or Java code. Aim to provide the same workflow to the Java developer as a C developer encounters when programming serial ports. Further simplicity can be gained if support is limited to Linux, *nix or POSIX platforms plus resources and time are better concentrated ultimately to provide a reliable library.
 
+Why Another Java Serial Port Library?
+-------------------------------------
+ 1. I needed to access serial ports in Java on a Linux platform.
+ 2. RxTx being the only viable option to me seemed too complicated and I had some concerns over its reliability. I was also not sure if it was being maintained.
+ 3. I wanted to improve my C programming.
+ 4. I wanted to improve my knowledge of the Java Native Interface, JNI.
+ 5. I wanted to improve my unit-testing knowledge and skills.
+ 6. I wanted something simple.
+
 Goals
 -----
   1. Provide a reliable and simple Java package and native library to allow the use of serial ports on the Linux platform from Java applications and attempt to allow porting to other *nix and POSIX platforms.
