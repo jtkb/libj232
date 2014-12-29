@@ -43,10 +43,11 @@ Why Another Java Serial Port Library?
 -------------------------------------
  1. I needed to access serial ports in Java on a Linux platform.
  2. RxTx being the only viable option to me seemed too complicated and I had some concerns over its reliability. I was also not sure if it was being maintained.
- 3. I wanted to improve my C programming.
- 4. I wanted to improve my knowledge of the Java Native Interface, JNI.
- 5. I wanted to improve my unit-testing knowledge and skills.
- 6. I wanted something simple.
+ 3. I wanted to understand more about serialport/RS232 programming.
+ 4. I wanted to improve my C programming.
+ 5. I wanted to improve my knowledge of the Java Native Interface, JNI.
+ 6. I wanted to improve my unit-testing knowledge and skills.
+ 7. I wanted something simple.
 
 Goals
 -----
