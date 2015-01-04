@@ -37,10 +37,10 @@
 /*
  Java Class Strings
  */
-#define CONTROL_CHARACTERS_CLASS_STRING "com/javatechnics/rs232/ControlCharacters"
-#define CONTROL_FLAGS_CLASS_STRING "com/javatechnics/rs232/ControlFlags"
-#define TERMIOS_CLASS_STRING "com/javatechnics/rs232/TermIOS"
-#define TERMINAL_CONTROL_ACTIONS_CLASS_STRING "com/javatechnics/rs232/TerminalControlActions"
+#define CONTROL_CHARACTERS_CLASS_STRING "com/javatechnics/rs232/struct/ControlCharacters"
+#define CONTROL_FLAGS_CLASS_STRING "com/javatechnics/rs232//flags/ControlFlags"
+#define TERMIOS_CLASS_STRING "com/javatechnics/rs232/struct/TermIOS"
+#define TERMINAL_CONTROL_ACTIONS_CLASS_STRING "com/javatechnics/rs232/flags/TerminalControlActions"
 
 /*
  Have included these defines here because they are defined in
@@ -297,13 +297,4 @@ int get_field_ids(JNIEnv* env, jclass cls, const char* const field_names[], \
 
 int get_native_value(const int const java_values[], const int const native_flags[],
                             const int java_value, const int size);
-
-// #################################################################
-//
-//                      TEST VARIABLES
-//
-// #################################################################
-
-int fd = 0;
-int nativeTestOpen();
 #endif

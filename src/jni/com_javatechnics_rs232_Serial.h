@@ -34,7 +34,7 @@ JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_closeSerialPort
 /*
  * Class:     com_javatechnics_rs232_Serial
  * Method:    setNativeTerminalAttributes
- * Signature: (IILcom/javatechnics/rs232/TermIOS;)I
+ * Signature: (IILcom/javatechnics/rs232/struct/TermIOS;)I
  */
 JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes
   (JNIEnv *, jobject, jint, jint, jobject);
@@ -42,7 +42,7 @@ JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_setNativeTerminalAttri
 /*
  * Class:     com_javatechnics_rs232_Serial
  * Method:    getNativeTerminalAttributes
- * Signature: (I)Lcom/javatechnics/rs232/TermIOS;
+ * Signature: (I)Lcom/javatechnics/rs232/struct/TermIOS;
  */
 JNIEXPORT jobject JNICALL Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes
   (JNIEnv *, jobject, jint);
@@ -69,14 +69,6 @@ JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_setNativeModemcontrolB
  * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_nativeTCFlush
-  (JNIEnv *, jobject, jint, jint);
-
-/*
- * Class:     com_javatechnics_rs232_Serial
- * Method:    nativeTestRead
- * Signature: (II)I
- */
-JNIEXPORT jint JNICALL Java_com_javatechnics_rs232_Serial_nativeTestRead
   (JNIEnv *, jobject, jint, jint);
 
 #ifdef __cplusplus
