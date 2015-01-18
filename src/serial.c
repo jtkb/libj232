@@ -165,7 +165,8 @@ Java_com_javatechnics_rs232_Serial_setNativeTerminalAttributes (JNIEnv *env,
 #endif
     syslog(LOG_USER | LOG_DEBUG, "Setting c_cflag: 0x%x  c_iflag: 0x%x   c_oflag: 0x%x  c_lflag: 0x%x", l_termios.c_cflag, l_termios.c_iflag, l_termios.c_oflag, l_termios.c_lflag);
     jbyteArray j_c_cc = (*env)->GetObjectField(env, termios, field_ids[4]);
-    (*env)->GetByteArrayRegion(env, j_c_cc, 0, 32, (jbyte*)(l_termios.c_cc));
+    (*env)->GetByteArrayRegion(env, j_c_cc, 0, number_control_character_flags, \
+                                                (jbyte*)(l_termios.c_cc));
     
     return_value = tcsetattr(file_descriptor, termattr, &l_termios);
     if (return_value == -1){
@@ -267,7 +268,9 @@ Java_com_javatechnics_rs232_Serial_getNativeTerminalAttributes (JNIEnv *env,
                         }
                         //Set the control characters
                         jbyteArray j_c_cc = (*env)->GetObjectField(env, returnObject, field_ids[4]);
-                        (*env)->SetByteArrayRegion(env, j_c_cc, 0, NCCS, l_termios.c_cc);
+                        (*env)->SetByteArrayRegion(env, j_c_cc, 0, \
+                                                number_control_character_flags,\
+                                                l_termios.c_cc);
                     }
                 }
             }
