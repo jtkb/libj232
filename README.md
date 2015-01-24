@@ -5,9 +5,11 @@ This repository is the native library that compliments a Java library, j232, whi
 
 This library is one of two components that enable access to serial ports:
 
-[https://github.com/jtkb/j232](j232) - the Java application library
+The Java package:   
+https://github.com/jtkb/j232  
 
-[https://github.com/jtkb/libj232](libj232) - the native code library
+This native library:  
+https://github.com/jtkb/libj232
 
 Currently the two libraries are two separate repositories on GitHub.
 
